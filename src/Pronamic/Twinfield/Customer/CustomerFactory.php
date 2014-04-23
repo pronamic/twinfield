@@ -1,7 +1,7 @@
 <?php
 namespace Pronamic\Twinfield\Customer;
 
-use \Pronamic\Twinfield\Factory\ParentFactory;
+use \Pronamic\Twinfield\Factory\ProcessXmlRequestFactory;
 use \Pronamic\Twinfield\Customer\Mapper\CustomerMapper;
 use \Pronamic\Twinfield\Request as Request;
 
@@ -24,7 +24,7 @@ use \Pronamic\Twinfield\Request as Request;
  * @copyright (c) 2013, Pronamic
  * @version 0.0.1
  */
-class CustomerFactory extends ParentFactory
+class CustomerFactory extends ProcessXmlRequestFactory
 {
     /**
      * Requests a specific customer based off the passed in code
@@ -59,32 +59,24 @@ class CustomerFactory extends ParentFactory
      */
     public function get($code, $office = null)
     {
-        // Attempts to process the login
-        if($this->getLogin()->process()) {
-            
-            // Get the secure service class
-            $service = $this->getService();
+        // No office passed, get the office from the Config
+        if(! $office)
+            $office = $this->getConfig()->getOffice();
 
-            // No office passed, get the office from the Config
-            if(! $office)
-                $office = $this->getConfig()->getOffice();
+        // Make a request to read a single customer. Set the required values
+        $request_customer = new Request\Read\Customer();
+        $request_customer
+            ->setOffice($office)
+            ->setCode($code);
+        
+        // Send the Request document and set the response to this instance.
+        $response = $this->execute($request_customer);
 
-            // Make a request to read a single customer. Set the required values
-            $request_customer = new Request\Read\Customer();
-            $request_customer
-                ->setOffice($office)
-                ->setCode($code);
-            
-            // Send the Request document and set the response to this instance.
-            $response = $service->send($request_customer);
-            $this->setResponse($response);
-
-            // Return a mapped Customer if successful or false if not.
-            if($response->isSuccessful()) {
-                return CustomerMapper::map($response);
-            } else {
-                return false;
-            }
+        // Return a mapped Customer if successful or false if not.
+        if($response->isSuccessful()) {
+            return CustomerMapper::map($response);
+        } else {
+            return false;
         }
     }
     
@@ -115,50 +107,44 @@ class CustomerFactory extends ParentFactory
      */
     public function listAll($office = null, $dimType = 'DEB')
     {
-        // Attempts to process the login
-        if($this->getLogin()->process()) {
-            
-            // Gets the secure service class
-            $service = $this->getService();
+        // If no office present, use the config set value
+        if(! $office)
+            $office = $this->getSessionLoginHandler()->getConfig()->getOffice();
+        
+        // Make a request to a list of all customers
+        $request_customers = new Request\Catalog\Dimension(
+            $office, 
+            $dimType
+        );
 
-            // If no office present, use the config set value
-            if(! $office)
-                $office = $this->getConfig()->getOffice();
-            
-            // Make a request to a list of all customers
-            $request_customers = new Request\Catalog\Dimension(
-                $office, 
-                $dimType
-            );
+        // Send the Request document and set the response to this instance.
+        //$response = $service->send($request_customers);
+        $response = $this->execute($request_customers);
+        $this->setResponse($response);
 
-            // Send the Request document and set the response to this instance.
-            $response = $service->send($request_customers);
-            $this->setResponse($response);
+        // Loop through the results if successful
+        if($response->isSuccessful()) {
 
-            // Loop through the results if successful
-            if($response->isSuccessful()) {
+            // Get the raw response document
+            $responseDOM = $response->getResponseDocument();
 
-                // Get the raw response document
-                $responseDOM = $response->getResponseDocument();
+            // Prepared empty customer array
+            $customers = array();
 
-                // Prepared empty customer array
-                $customers = array();
+            // Store in an array by customer id
+            foreach($responseDOM->getElementsByTagName('dimension') as $customer) {
+                $customer_id = $customer->textContent;
 
-                // Store in an array by customer id
-                foreach($responseDOM->getElementsByTagName('dimension') as $customer) {
-                    $customer_id = $customer->textContent;
+                if(! is_numeric($customer_id))
+                    continue;
 
-                    if(! is_numeric($customer_id))
-                        continue;
-
-                    $customers[$customer->textContent] = array(
-                        'name'      => $customer->getAttribute('name'),
-                        'shortName' => $customer->getAttribute('shortname')
-                    );
-                }
-
-                return $customers;
+                $customers[$customer->textContent] = array(
+                    'name'      => $customer->getAttribute('name'),
+                    'shortName' => $customer->getAttribute('shortname')
+                );
             }
+
+            return $customers;
         }
     }
 
@@ -188,26 +174,18 @@ class CustomerFactory extends ParentFactory
      */
     public function send(Customer $customer)
     {
-        // Attempts the process login
-        if($this->getLogin()->process()) {
-            
-            // Gets the secure service
-            $service = $this->getService();
+        // Gets a new instance of CustomersDocument and sets the $customer
+        $customersDocument = new DOM\CustomersDocument();
+        $customersDocument->addCustomer($customer);
 
-            // Gets a new instance of CustomersDocument and sets the $customer
-            $customersDocument = new DOM\CustomersDocument();
-            $customersDocument->addCustomer($customer);
+        // Send the DOM document request and set the response
+        $response = $this->execute($customersDocument);
 
-            // Send the DOM document request and set the response
-            $response = $service->send($customersDocument);
-            $this->setResponse($response);
-
-            // Return a bool on status of response.
-            if($response->isSuccessful()) {
-                return true;
-            } else {
-                return false;
-            }
+        // Return a bool on status of response.
+        if($response->isSuccessful()) {
+            return true;
+        } else {
+            return false;
         }
     }
     

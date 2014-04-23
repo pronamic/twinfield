@@ -19,7 +19,7 @@ namespace Pronamic\Twinfield\Secure;
  * @copyright (c) 2013, Leon Rowland
  * @version 0.0.1
  */
-class Config
+class Config implements ConfigInterface
 {
     /**
      * Holds all the login details for this

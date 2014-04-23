@@ -1,7 +1,9 @@
 <?php
-namespace Pronamic\Twinfield\Secure;
+namespace Pronamic\Twinfield\Service;
 
-use \Pronamic\Twinfield\Response\Response;
+use Pronamic\Twinfield\Response\Response;
+use DOMDocument;
+use Pronamic\Twinfield\Secure\SessionLoginHandler;
 
 /**
  * Service Class
@@ -24,16 +26,8 @@ use \Pronamic\Twinfield\Response\Response;
  * @copyright (c) 2013, Leon Rowland
  * @version 0.0.1
  */
-class Service
+class ProcessXmlRequestService extends AbstractService
 {
-    /**
-     * Holds the login class for this service
-     * 
-     * @access private
-     * @var \Pronamic\Twinfield\Secure\Login $login
-     */
-    private $login;
-
     /**
      * The result from the ProcessXMLString
      * called to the Twinfield SOAP Service
@@ -51,25 +45,6 @@ class Service
      */
     private $response;
 
-    public function __construct(Login $login)
-    {
-        $this->login = $login;
-    }
-
-    /**
-     * Sets the login class for this secure service
-     *
-     * @since 0.0.1
-     *
-     * @access public
-     * @param \Pronamic\Twinfield\Secure\Login $login
-     * @return void
-     */
-    public function setLogin(Login $login)
-    {
-        $this->login = $login;
-    }
-
     /**
      * Sends a request with the secured client, and loads
      * the result response into Service->response
@@ -82,15 +57,15 @@ class Service
      * @param Document $document A class that extended Secure\Document
      * @return \DOMDocument The response from the request
      */
-    public function send(\DOMDocument $document)
+    public function send(DOMDocument $document)
     {
         // Get the secureclient and send this documents xml
-        $this->result = $this->login->getClient()->ProcessXmlString(array(
+        $this->result = $this->getSessionLoginHandler()->getClient()->ProcessXmlString(array(
             'xmlRequest' => $document->saveXML()
         ));
 
         // Make a new DOMDocument, and load the response into it
-        $this->response = new \DOMDocument();
+        $this->response = new DOMDocument();
         $this->response->loadXML($this->result->ProcessXmlStringResult);
 
         return new Response($this->response);
