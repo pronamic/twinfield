@@ -35,6 +35,14 @@ class OfficeFactory extends FinderFactory
     {
         $response = $this->searchFinder(self::TYPE_OFFICES, $pattern, $field, $firstRow, $maxRows, $options);
         $offices = [];
+        
+        // If a single item is returned, encapsulate in an array to allow further processing, this also
+        // allows to always return an array of offices like specified
+        // Credits to https://github.com/stephangroen
+        $result = $response->data->Items->ArrayOfString;
+        if(count($result) == 1) {
+            $result = [$result];
+        }
         foreach($response->data->Items->ArrayOfString as $officeArray)
         {
             $office = new Office();
