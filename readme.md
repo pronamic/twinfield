@@ -124,6 +124,82 @@ $customer = $customerFactory->get('customerCode', 'office[optional]');
 
 The response from get() will be a \Pronamic\Twinfield\Customer\Customer object.
 
+#### Browse
+
+Browse requests allow you to retreive detailed reports about just anything entered into Twinfield. You do so by fetching from a 'browse definition' which are outlined [here](https://c3.twinfield.com/webservices/documentation/#/ApiReference/Request/BrowseData#Example).
+```php
+use \Pronamic\Twinfield\Secure\Config;
+
+use \Pronamic\Twinfield\Browse\BrowseFactory;
+use \Pronamic\Twinfield\Browse\Browse;
+use \Pronamic\Twinfield\Browse\Column;
+
+define('TWINFIELD_ADMINISTRATION', '');
+define('TWINFIELD_USER', '');
+define('TWINFIELD_PASSWORD', '');
+define('TWINFIELD_COMPANY', '');
+
+$config = new Config();
+$config->setCredentials(TWINFIELD_USER, TWINFIELD_PASSWORD, TWINFIELD_COMPANY, TWINFIELD_ADMINISTRATION);
+
+$browseFactory = new BrowseFactory($config);
+
+$browse = new Browse;
+$browse->setCode('200');
+
+$columnCreditor = new Column;
+$columnCreditor->setId(1);
+$columnCreditor->setField('fin.trs.line.dim2');
+$columnCreditor->setLabel('Creditor');
+$columnCreditor->setOperator('between');
+$columnCreditor->setFrom(20000);
+$columnCreditor->setVisible(true);
+$browse->addColumn($columnCreditor);
+
+$columnNumber = new Column;
+$columnNumber->setId(2);
+$columnNumber->setField('fin.trs.head.number');
+$columnNumber->setLabel('Trans nr');
+$columnNumber->setVisible(true);
+$browse->addColumn($columnNumber);
+
+$columnDaybook = new Column;
+$columnDaybook->setId(3);
+$columnDaybook->setField('fin.trs.head.code');
+$columnDaybook->setLabel('Code');
+$columnDaybook->setVisible(true);
+$browse->addColumn($columnDaybook);
+
+$columnOffice = new Column;
+$columnOffice->setId(4);
+$columnOffice->setField('fin.trs.head.office');
+$columnOffice->setOperator('equal');
+$columnOffice->setFrom(TWINFIELD_ADMINISTRATION);
+$columnOffice->setVisible(true);
+$browse->addColumn($columnOffice);
+
+$browseResult = $browseFactory->send($browse);
+
+// The browse request failed, the API is rather specific about what it accepts.
+if(!$browseResult) {
+    throw new Exception($browseFactory->getResponse()->getResponseDocument()->saveXML());
+}
+
+// The criteria might be incorrect resulting in 0 returned columns
+if(!count($browseResult->getLines())) {
+    throw new Exception('The result doesn\'t have any lines!');
+}
+
+foreach($browseResult->getLines() as $line) {
+	echo $line->getField('fin.trs.head.number')->getValue() . "\n";
+}
+```
+#### Ledgers
+You can receive a list of all PNL ledgers in the administration like so:
+```
+$ledgerFactory = new \Pronamic\Twinfield\Ledger\LedgerFactory($config);
+$ledgers = $ledgerFactory->all('PNL');
+```
 
 #### Notes
 
@@ -151,6 +227,7 @@ restructure or alteration please bring up in an issue first.
 | [Dimension Types](https://c1.twinfield.com/webservices/documentation/#/ApiReference/Masters/DimensionTypes)     |                    |                    |                    |                    | Pronamic/Twinfield/Dimension/Type                                                                                       |
 | [Offices](https://c1.twinfield.com/webservices/documentation/#/ApiReference/Masters/Offices)                    |                    | :white_check_mark: |                    |                    | Pronamic/Twinfield/Office                                                                                               |
 | [Vat types](https://c3.twinfield.com/webservices/documentation/#/ApiReference/Miscellaneous/Finder)             |                    | :white_check_mark: |                    |                    | Pronamic/Twinfield/VatCode                                                                                              |
+| [Ledger](https://c3.twinfield.com/webservices/documentation/#/ApiReference/Miscellaneous/Finder)          |                    | :white_check_mark: |                    |                    | Pronamic/Twinfield/Ledger                                                                                              |
 
 
 ## Build
@@ -172,6 +249,7 @@ restructure or alteration please bring up in an issue first.
 *	[Pronamic](http://pronamic.nl/)
 *	[Remco Tolsma](http://remcotolsma.nl/)
 *   [Emile Bons](http://www.emilebons.nl)
+*   [Vincent Swarte](https://betabug.nl/)
 
 
 ## License
