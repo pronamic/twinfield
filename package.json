@@ -1,7 +1,7 @@
 {
   "name": "twinfield",
   "version": "1.0.0",
-  "description": "Library for using the Twinfield Soap Service.",
+  "description": "[DEPRECATED] Library for using the Twinfield Soap Service.",
   "repository": {
     "type": "git",
     "url": "https://github.com/pronamic/twinfield.git"
@@ -11,7 +11,8 @@
     "api",
     "administration",
     "accounting",
-    "accountant"
+    "accountant",
+    "deprecated"
   ],
   "author": {
     "name": "Pronamic",
