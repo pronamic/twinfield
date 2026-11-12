@@ -1,6 +1,21 @@
-# [DEPRECATED] Twinfield  [![Build Status](https://secure.travis-ci.org/pronamic/twinfield.png?branch=develop)](http://travis-ci.org/pronamic/twinfield)
+# [ABANDONED] Twinfield
 
-**This library is moved to https://github.com/php-twinfield/twinfield.**
+> [!WARNING]
+> **This library is abandoned, deprecated and no longer maintained.** No new features, bug fixes or security updates will be released and this repository is archived.
+>
+> The successor is [`solvebeam/twinfield`](https://packagist.org/packages/solvebeam/twinfield), a modern PHP SDK for the Twinfield API:
+>
+> ```
+> composer require solvebeam/twinfield
+> ```
+>
+> - Packagist: https://packagist.org/packages/solvebeam/twinfield
+> - GitHub: https://github.com/solvebeam/twinfield-php
+> - Documentation: https://php.twinfield.solvebeam.com
+>
+> Note that `solvebeam/twinfield` is a new library with its own API (`SolveBeam\Twinfield` namespace, PHP 8.3+), it is not a drop-in replacement for `pronamic/twinfield`.
+
+The documentation below is kept for reference only.
 
 A PHP library for Twinfield Integration. Developed by [Remco Tolsma](http://remcotolsma.nl/) and [Leon Rowland](http://leon.rowland.nl/) from [Pronamic](http://pronamic.nl/).
 Use the Twinfield SOAP Service to have your PHP application communicate directly with your Twinfield account.

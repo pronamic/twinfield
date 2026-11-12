@@ -1,7 +1,7 @@
 {
   "name": "twinfield",
   "version": "1.0.0",
-  "description": "[DEPRECATED] Library for using the Twinfield Soap Service.",
+  "description": "[ABANDONED] Library for using the Twinfield Soap Service, use solvebeam/twinfield instead.",
   "repository": {
     "type": "git",
     "url": "https://github.com/pronamic/twinfield.git"

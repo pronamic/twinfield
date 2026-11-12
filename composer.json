@@ -1,8 +1,9 @@
 {
 	"name": "pronamic/twinfield",
 	"type": "library",
-	"description": "[DEPRECATED] Library for using the Twinfield Soap Service.",
-	"keywords": ["twinfield","deprecated"],
+	"description": "[ABANDONED] Library for using the Twinfield Soap Service, use solvebeam/twinfield instead.",
+	"keywords": ["twinfield","deprecated","abandoned"],
+	"abandoned": "solvebeam/twinfield",
 	"homepage": "http://pronamic.nl",
 	"license": "GPL",
 	"authors": [
@@ -13,7 +14,7 @@
         "php-twinfield/twinfield": "*"
     },
 	"suggest": {
-        "php-twinfield/twinfield": "New location!"
+        "solvebeam/twinfield": "Successor of this abandoned library, a modern PHP SDK for the Twinfield API."
     },
 	"require": {
 		"php": ">=5.4"
